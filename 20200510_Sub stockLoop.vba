@@ -2,7 +2,7 @@ Sub stock()
 
 ' Increment the function through each worksheet in the workbook
 For Each WS In Worksheets
-    Dim worksheet As String
+    Dim Worksheet As String
     WS.Activate
     Dim Ticker As String
     Dim TickerOpenPriceYearBeginning As Double
@@ -55,12 +55,29 @@ For Each WS In Worksheets
             If Cells(TickerStart, "C") = 0 Then
                 MsgBox ("Cell at ticker start in worksheet " & WS.Name & " is 0 at line " & TickerStart)
                 Cells(TargetRow, "P") = "Cell at ticker start in worksheet " & WS.Name & " is 0 at line " & TickerStart
-                '       d) write results into summary table:
-            Else
+            Else '       d) calculate percentage:
                 TickerCloseStart_OpenEnd_ChangeYearly_Percentage = (Cells(TickerEnd, "F") - Cells(TickerStart, "C")) / Cells(TickerStart, "C")
+                '          e) highlight red, if change is negative:
+                If TickerCloseStart_OpenEnd_ChangeYearly < 0 Then
+                    Cells(TargetRow, "N").Interior.ColorIndex = 3
+                Else ' highlight gree, if positive
+                    Cells(TargetRow, "N").Interior.ColorIndex = 4
+                End If
+                '          f) highlight red, if change is negative for the percentage column:
+                If TickerCloseStart_OpenEnd_ChangeYearly_Percentage < 0 Then
+                    Cells(TargetRow, "O").Interior.ColorIndex = 3
+                Else ' highlight gree, if positive
+                    Cells(TargetRow, "O").Interior.ColorIndex = 4
+                End If
+                
             End If
             Cells(TargetRow, "N") = TickerCloseStart_OpenEnd_ChangeYearly
             Cells(TargetRow, "O") = TickerCloseStart_OpenEnd_ChangeYearly_Percentage
+            ' find last row in the summary table
+            Dim LastRowInSummaryTable As Long
+            LastRowInSummaryTable = Cells(Rows.Count, "O").End(xlUp).Row
+            'Range("O2:O" & LastRowInSummaryTable).NumberFormat = "0.00%"
+            Columns("O").NumberFormat = "0.00%"
                 ' When finished writing results for the specific ticker, need to change the following parameters:
             TargetRow = TargetRow + 1 ' in the summary table, next row to fill up will need to be one row below, so existing plus one
             TickerVolumeTotal = 0 ' reset total volume for the specific ticker, so that next ticker calculates from 0
@@ -71,4 +88,5 @@ For Each WS In Worksheets
     Next Row ' continue to the next loop
 Next WS
 End Sub
+
 
